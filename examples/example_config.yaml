@@ -1,0 +1,133 @@
+# CuPyMag Configuration File
+# Copy this file to your working directory and modify as needed
+# For documentation, see: https://github.com/Hongyi-Guan/CuPyMag/README.md
+
+# For demonstration, we use the material parameters of Ni50Fe50,
+# as reported in Phys. Rev. Materials 9, 044407 (2025)
+
+# =======================
+# PHYSICS PARAMETERS
+# =======================
+physics:
+  # Magnetic properties
+  magnetic:
+    ms: 1.25e+6 # Saturation magnetization (A/m)
+    exchange_stiffness: 1.0e-11 # Exchange stiffness (J/m)
+    anisotropy_k1: 958.0 # Anisotropy constant (J/m^3)
+
+  # Elastic stiffness constants (Pa)
+  elastic:
+    c11: 240.0e+9
+    c12: 89.0e+9
+    c44: 76.0e+9
+
+  # Magnetostriction constants
+  magnetostriction:
+    lambda100: 10.0e-6
+    lambda111: 30.9e-6
+
+  # Ellipsoid theorem Demagnetization factors
+  demagnetization:
+    n_x: 0.0
+    n_y: 0.0
+    n_z: 1.0
+
+  # External field (A/m)
+  external_field:
+    hext1: 200.0
+    dhext1: 20.0
+    hext2: 0.01
+    dhext2: 0.0
+    hext3: 0.0
+    dhext3: 0.0
+
+  # External stress (Pa)
+  external_stress:
+    sigma11: 0.0
+    sigma22: 0.0
+    sigma33: 0.0
+    sigma12: 0.0
+    sigma23: 0.0
+    sigma13: 0.0
+
+  # If set true, rotate x axis to [111] direction (easy axis for kappa1 < 0)
+  rotation_111: false
+
+  # Solve magnetic coupled mechanical equilibrium each LLG step
+  magnetoelastic_coupling: true
+
+  # Characteristic length (m)
+  characteristic_length: 10.0e-9
+
+# ====================
+# GRID PARAMETERS
+# ====================
+grid:
+  type: "Hex"      # "Hex" or "Tet"
+  # defect_center: [64.0, 64.0, 8.0] # Custom defect center, default is center of the computation domain
+
+  # Only used for cubic mesh
+  # Computation domain [nx, ny, nz], defect [ndx, ndy, ndz]
+  cubic_mesh:
+    nx: 64
+    ny: 64
+    nz: 16
+    ndx: 10
+    ndy: 10
+    ndz: 6
+
+  # Only used by tetrahedral mesh
+  tet_mesh:
+    mesh_file: "/path/to/your/nas/file"
+    defect_shape: "Ellipsoid"  # "Sphere", "Ellipsoid", "RotatedEllipsoid"
+    defect_parameters: [16.0, 6.0, 6.0] # See cupymag/utils/defect_shapes.py for more details
+    # rotation_matrix: [[1.0,0.0,0.0],[0.0,1.0,0.0],[0.0,0.0,1.0]] # Rotation matrix for "RotatedEllipsoid"
+
+# ====================
+# SIMULATION PARAMETERS
+# ====================
+simulation:
+  precision: "DP"  # "DP" (double) or "SP" (single)
+
+  # The Landau Lifshitz Gilbert (LLG) time integration
+  llg:
+    timestep: 3.0e-12 # LLG time step size
+    alpha_damping: 0.15 # Gilbert damping constant
+    
+    # If the per-DOF L2 norm of m between 2 LLG time step is smaller than this value, converge.
+    llg_accuracy_factor: 5.0e-10
+
+  # Parameters for the CG solver
+  solver:
+    tolerance: 1.0e-7
+    max_iterations: 5000
+    
+    # If the per-DOF L2 norm of m between 2 LLG time step < 100.0 * llg_accuracy_factor,
+    # use the field in the last time step as initial conditions for the CG solver
+    initial_factor: 100.0
+
+  # If true, restart from restart_magnetization, otherwise from uniform magnetization
+  restart: false
+  # restart_magnetization: "last_m.h5"
+
+  # Set the initial magnetization (uniform), only valid when restart is false
+  # This array will be automatically normalized
+  initial_magnetization: [1.0, 0.0, 0.0] # This array will be automatically normalized
+
+  stop_condition: 
+    # component: 0 # Stops if m1 < -0.95 (based on component 0)
+    
+    # If the component tag is removed, use the direction tag
+    # Example: stops if 0.8*m1 + 0.6*m2 < -0.95
+    direction: [0.8, 0.6, 0.0] # This array will be automatically normalized
+    
+    value: -0.95
+
+# ====================
+# OUTPUT SETTINGS
+# ====================
+output:
+  directory: "."
+  write_magnetization: true # write the latest magnetization to h5 file each time vtu field is written
+  save_frequency: 1000 # Save fields per 1000 time steps
+  vtu_blend_alpha: 0.05 # 1.0 = purely nodal, 0.0 = purely cell-centered

@@ -1,0 +1,91 @@
+# CuPyMag Configuration File (ex4)
+# Copy this file to your working directory and modify as needed
+# For documentation, see: https://github.com/Hongyi-Guan/CuPyMag/README.md
+
+
+physics:
+  # Only elastic stiffness is required in physics module
+  elastic:
+    c11: 240.0e+9
+    c12: 89.0e+9
+    c44: 76.0e+9
+
+  # Others are dummy
+  magnetostriction:
+    lambda100: 10.0e-6
+    lambda111: 30.9e-6
+
+  magnetic:
+    ms: 1.25e+6
+    exchange_stiffness: 1.0e-11
+    anisotropy_k1: 958.0
+
+  demagnetization:
+    n_x: 0.0
+    n_y: 0.0
+    n_z: 1.0
+
+  external_field:
+    hext1: 200.0
+    dhext1: 20.0
+    hext2: 0.01
+    dhext2: 0.0
+    hext3: 0.0
+    dhext3: 0.0
+
+  external_stress:
+    sigma11: 0.0
+    sigma22: 0.0
+    sigma33: 0.0
+    sigma12: 0.0
+    sigma23: 0.0
+    sigma13: 0.0
+
+  rotation_111: false
+  magnetoelastic_coupling: true
+
+  characteristic_length: 10.0e-9
+
+# ===============
+# GRID PARAMETERS
+# ===============
+grid:
+  type: "Hex"      # "Hex" or "Tet"
+
+  # Only used for cubic mesh
+  # Computation domain [nx, ny, nz], defect [ndx, ndy, ndz]
+  cubic_mesh:
+    nx: 64
+    ny: 64
+    nz: 16
+    ndx: 0
+    ndy: 0
+    ndz: 0
+
+simulation:
+  precision: "DP" # This parameter is required
+
+  solver:
+    tolerance: 1.0e-7
+    max_iterations: 5000
+    initial_factor: 100.0 # dummy
+
+  # The all the parameters are dummy
+  llg:
+    timestep: 3.0e-12
+    alpha_damping: 0.15
+    llg_accuracy_factor: 5.0e-10
+
+  restart: false
+  stop_condition:
+    component: 0
+    value: -0.95
+
+# =======================
+# Other dummy parameters
+# =======================
+output:
+  directory: "."
+  write_magnetization: true
+  save_frequency: 1000
+  vtu_blend_alpha: 0.05
