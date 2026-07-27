@@ -73,7 +73,9 @@ class VolumeAverage:
         self.original_global_id = global_id
 
         self.n_nodes_per_elem = elements.shape[1] - 1
-        self.corner_dofs = global_id[elements[:, 0:self.n_nodes_per_elem]]
+        self.corner_node_ids = elements[:, :self.n_nodes_per_elem]
+        self.corner_dofs = global_id[self.corner_node_ids]
+
         self.defect_flags = elements[:, -1]
 
         self.gauss_points, self.gauss_weights = gauss_quadrature()
@@ -97,15 +99,15 @@ class VolumeAverage:
             detJ_g: Jacobian determinants (nElems, nGaussPoints)
         """
         coords = self.coords
-        corner_dofs = self.corner_dofs
+        corner_node_ids = self.corner_node_ids
 
-        n_elems = corner_dofs.shape[0]
+        n_elems = corner_node_ids.shape[0]
 
         gauss_points = self.gauss_points
         ngp = len(gauss_points)
 
         # Gather corner node coordinates: (nElems, nNodesPerElem, 3)
-        corner_coords = coords[corner_dofs]
+        corner_coords = coords[corner_node_ids]
 
         detJ_g = cp.zeros((n_elems, ngp), dtype=float_cp)
 
